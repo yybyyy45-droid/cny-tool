@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI新年贺 — 2026马年春节AI祝福</title>
+    <meta name="description" content="AI一键生成拜年祝福、春联、马年运势签 — 马上有福，新春大吉！" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="./style.css" />
+</head>
+
+<body>
+    <!-- 烟花粒子画布 -->
+    <canvas id="fireworks-canvas"></canvas>
+
+    <!-- 飘落装饰 -->
+    <div class="floating-decor">
+        <span class="lantern lantern-1">🏮</span>
+        <span class="lantern lantern-2">🏮</span>
+        <span class="lantern lantern-3">🧧</span>
+        <span class="lantern lantern-4">🏮</span>
+        <span class="lantern lantern-5">🧧</span>
+        <span class="lantern lantern-6">🏮</span>
+    </div>
+
+    <!-- 主容器 -->
+    <div class="app-container">
+        <!-- 头部 -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="logo-icon">🐴</span>
+                    <div class="logo-text">
+                        <h1>AI新年贺</h1>
+                        <p class="subtitle">2026丙午马年 · 马上有福</p>
+                    </div>
+                </div>
+                <div class="header-badge">
+                    <span>🧧</span> 新春快乐
+                </div>
+            </div>
+        </header>
+
+        <!-- 功能导航 -->
+        <nav class="feature-nav">
+            <button class="nav-btn active" data-tab="greeting" id="nav-greeting">
+                <span class="nav-icon">🧧</span>
+                <span class="nav-label">拜年祝福</span>
+            </button>
+            <button class="nav-btn" data-tab="couplet" id="nav-couplet">
+                <span class="nav-icon">🏮</span>
+                <span class="nav-label">AI春联</span>
+            </button>
+            <button class="nav-btn" data-tab="fortune" id="nav-fortune">
+                <span class="nav-icon">🐴</span>
+                <span class="nav-label">运势签</span>
+            </button>
+        </nav>
+
+        <!-- ====== 拜年祝福 Tab ====== -->
+        <section class="tab-content active" id="tab-greeting">
+            <div class="section-card">
+                <h2 class="section-title"><span>✨</span> AI拜年祝福语</h2>
+                <p class="section-desc">选择对象和风格，AI为你生成走心祝福</p>
+
+                <!-- 拜年对象 -->
+                <div class="form-group">
+                    <label class="form-label">拜年对象</label>
+                    <div class="chip-group" id="target-chips">
+                        <button class="chip active" data-value="长辈">👴 长辈</button>
+                        <button class="chip" data-value="领导">👔 领导</button>
+                        <button class="chip" data-value="同事">🤝 同事</button>
+                        <button class="chip" data-value="朋友">😊 朋友</button>
+                        <button class="chip" data-value="客户">💼 客户</button>
+                        <button class="chip" data-value="恋人">💕 恋人</button>
+                    </div>
+                </div>
+
+                <!-- 祝福风格 -->
+                <div class="form-group">
+                    <label class="form-label">祝福风格</label>
+                    <div class="chip-group" id="style-chips">
+                        <button class="chip active" data-value="正式">🎩 正式得体</button>
+                        <button class="chip" data-value="文艺">🎨 文艺诗意</button>
+                        <button class="chip" data-value="幽默">😄 幽默搞笑</button>
+                        <button class="chip" data-value="古风">📜 古风雅韵</button>
+                        <button class="chip" data-value="网络">🔥 网络潮语</button>
+                    </div>
+                </div>
+
+                <!-- 特殊要求 -->
+                <div class="form-group">
+                    <label class="form-label">特殊要求 <span class="label-hint">（可选）</span></label>
+                    <input type="text" class="form-input" id="greeting-extra" placeholder="例如：嵌入名字「张总」、提到公司「字节跳动」" />
+                </div>
+
+                <!-- 生成按钮 -->
+                <button class="btn-generate" id="btn-gen-greeting">
+                    <span class="btn-icon">🧧</span>
+                    <span>生成祝福语</span>
+                </button>
+            </div>
+
+            <!-- 祝福结果 -->
+            <div class="result-area hidden" id="greeting-result">
+                <div class="result-header">
+                    <h3>🎊 新春祝福</h3>
+                    <div class="result-actions">
+                        <button class="action-btn" id="btn-copy-greeting" title="复制">📋 复制</button>
+                        <button class="action-btn" id="btn-regen-greeting" title="换一批">🔄 换一批</button>
+                    </div>
+                </div>
+                <div class="result-cards" id="greeting-cards"></div>
+            </div>
+        </section>
+
+        <!-- ====== AI春联 Tab ====== -->
+        <section class="tab-content" id="tab-couplet">
+            <div class="section-card">
+                <h2 class="section-title"><span>🏮</span> AI春联生成</h2>
+                <p class="section-desc">输入主题，AI为你写就新春佳联</p>
+
+                <!-- 春联主题 -->
+                <div class="form-group">
+                    <label class="form-label">春联主题</label>
+                    <div class="chip-group" id="couplet-theme-chips">
+                        <button class="chip active" data-value="事业">💼 事业兴旺</button>
+                        <button class="chip" data-value="家庭">🏠 阖家欢乐</button>
+                        <button class="chip" data-value="财运">💰 财源广进</button>
+                        <button class="chip" data-value="健康">💪 健康长寿</button>
+                        <button class="chip" data-value="学业">📚 学业有成</button>
+                    </div>
+                </div>
+
+                <!-- 行业 -->
+                <div class="form-group">
+                    <label class="form-label">行业/场景 <span class="label-hint">（可选）</span></label>
+                    <input type="text" class="form-input" id="couplet-industry" placeholder="例如：互联网、餐饮、教育、医疗" />
+                </div>
+
+                <!-- 风格 -->
+                <div class="form-group">
+                    <label class="form-label">风格</label>
+                    <div class="chip-group" id="couplet-style-chips">
+                        <button class="chip active" data-value="传统">📜 传统经典</button>
+                        <button class="chip" data-value="现代">✨ 现代创新</button>
+                        <button class="chip" data-value="趣味">😄 趣味搞怪</button>
+                    </div>
+                </div>
+
+                <button class="btn-generate" id="btn-gen-couplet">
+                    <span class="btn-icon">🏮</span>
+                    <span>生成春联</span>
+                </button>
+            </div>
+
+            <!-- 春联结果 -->
+            <div class="result-area hidden" id="couplet-result">
+                <div class="result-header">
+                    <h3>🏮 新春佳联</h3>
+                    <div class="result-actions">
+                        <button class="action-btn" id="btn-copy-couplet">📋 复制</button>
+                        <button class="action-btn" id="btn-regen-couplet">🔄 换一副</button>
+                    </div>
+                </div>
+                <div class="couplet-display" id="couplet-display">
+                    <div class="couplet-scroll couplet-top" id="couplet-hengpi">
+                        <span class="couplet-text"></span>
+                    </div>
+                    <div class="couplet-pair">
+                        <div class="couplet-scroll couplet-right" id="couplet-upper">
+                            <span class="couplet-text"></span>
+                        </div>
+                        <div class="couplet-center-art">🐴</div>
+                        <div class="couplet-scroll couplet-left" id="couplet-lower">
+                            <span class="couplet-text"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ====== 运势签 Tab ====== -->
+        <section class="tab-content" id="tab-fortune">
+            <div class="section-card fortune-section">
+                <h2 class="section-title"><span>🐴</span> 马年运势签</h2>
+                <p class="section-desc">诚心摇签，马年好运降临</p>
+
+                <!-- 生肖选择 -->
+                <div class="form-group">
+                    <label class="form-label">选择你的生肖</label>
+                    <div class="chip-group zodiac-chips" id="zodiac-chips">
+                        <button class="chip" data-value="鼠">🐭 鼠</button>
+                        <button class="chip" data-value="牛">🐮 牛</button>
+                        <button class="chip" data-value="虎">🐯 虎</button>
+                        <button class="chip" data-value="兔">🐰 兔</button>
+                        <button class="chip" data-value="龙">🐲 龙</button>
+                        <button class="chip" data-value="蛇">🐍 蛇</button>
+                        <button class="chip active" data-value="马">🐴 马</button>
+                        <button class="chip" data-value="羊">🐑 羊</button>
+                        <button class="chip" data-value="猴">🐵 猴</button>
+                        <button class="chip" data-value="鸡">🐔 鸡</button>
+                        <button class="chip" data-value="狗">🐶 狗</button>
+                        <button class="chip" data-value="猪">🐷 猪</button>
+                    </div>
+                </div>
+
+                <!-- 摇签按钮 -->
+                <button class="btn-fortune" id="btn-shake-fortune">
+                    <div class="fortune-tube">
+                        <span class="stick stick-1"></span>
+                        <span class="stick stick-2"></span>
+                        <span class="stick stick-3"></span>
+                    </div>
+                    <span class="fortune-label">🙏 摇签求运</span>
+                </button>
+            </div>
+
+            <!-- 运势结果 -->
+            <div class="result-area hidden" id="fortune-result">
+                <div class="fortune-card" id="fortune-card">
+                    <div class="fortune-card-header">
+                        <span class="fortune-rank" id="fortune-rank">上上签</span>
+                        <span class="fortune-number" id="fortune-number">第 ?? 签</span>
+                    </div>
+                    <div class="fortune-poem" id="fortune-poem"></div>
+                    <div class="fortune-details" id="fortune-details"></div>
+                    <div class="fortune-lucky" id="fortune-lucky"></div>
+                    <div class="fortune-actions">
+                        <button class="action-btn" id="btn-copy-fortune">📋 复制运势</button>
+                        <button class="action-btn" id="btn-reshake">🔄 再摇一签</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 底部 -->
+        <footer class="app-footer">
+            <p>AI新年贺 © 2026 — 马到成功，新春大吉 🐴✨</p>
+        </footer>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast hidden" id="toast"></div>
+
+    <!-- 加载覆盖 -->
+    <div class="loading-overlay hidden" id="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-horse">🐴</div>
+            <p class="loading-text">AI正在为您生成...</p>
+        </div>
+    </div>
+
+    <script type="module" src="./main.js"></script>
+</body>
+
+</html>
