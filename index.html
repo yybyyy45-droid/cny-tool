@@ -12,6 +12,9 @@
         href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap"
         rel="stylesheet" />
     <link rel="stylesheet" href="./style.css" />
+    <!-- Google AdSense Placeholder (Replace CA-PUB-XXX with your ID) -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX"
+        crossorigin="anonymous"></script>
 </head>
 
 <body>
@@ -281,7 +284,8 @@
 
         <!-- 底部 -->
         <footer class="app-footer">
-            <p>AI新年贺 © 2026 — 马到成功，新春大吉 🐴✨</p>
+            <p>AI新年贺 © 2026 — 马到成功 🐴✨</p>
+            <button id="btn-sponsor" class="btn-sponsor">🧧 随喜赞赏</button>
         </footer>
     </div>
 
@@ -297,6 +301,38 @@
     </div>
 
     <script type="module" src="./main.js"></script>
+
+    <!-- Donation Modal -->
+    <div id="donation-modal" class="modal hidden">
+        <div class="modal-content donation-content">
+            <span class="close-modal">&times;</span>
+            <div class="donation-header">
+                <h3>🧧 随喜赞赏</h3>
+                <p>如果觉得好用，请作者喝杯咖啡吧 ☕️</p>
+            </div>
+            <div class="qr-container">
+                <div class="qr-item">
+                    <div class="qr-placeholder" id="qr-wechat">
+                        <img src="./wechat-pay.png" alt="微信支付"
+                            onerror="this.style.display='none';this.parentNode.classList.add('no-img')">
+                        <span class="qr-fallback-text">微信支付</span>
+                    </div>
+                    <p>微信支付</p>
+                </div>
+                <div class="qr-item">
+                    <div class="qr-placeholder" id="qr-alipay">
+                        <img src="./alipay.png" alt="支付宝"
+                            onerror="this.style.display='none';this.parentNode.classList.add('no-img')">
+                        <span class="qr-fallback-text">支付宝</span>
+                    </div>
+                    <p>支付宝</p>
+                </div>
+            </div>
+            <div class="donation-footer">
+                <p>祝您 2026 马年行大运！🐴💰</p>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

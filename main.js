@@ -183,6 +183,20 @@ function initButtons() {
     document.getElementById('btn-copy-fortune')?.addEventListener('click', copyFortune);
     document.getElementById('btn-reshake')?.addEventListener('click', handleShakeFortune);
     document.getElementById('btn-share-fortune')?.addEventListener('click', handleShareFortune);
+
+    // Donation
+    const donationModal = document.getElementById('donation-modal');
+    document.getElementById('btn-sponsor')?.addEventListener('click', () => {
+        donationModal.classList.remove('hidden');
+    });
+    donationModal?.querySelector('.close-modal')?.addEventListener('click', () => {
+        donationModal.classList.add('hidden');
+    });
+    window.addEventListener('click', (e) => {
+        if (e.target === donationModal) {
+            donationModal.classList.add('hidden');
+        }
+    });
 }
 
 // ============ Greeting Generation ============
