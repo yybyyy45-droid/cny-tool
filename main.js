@@ -120,6 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initChipGroups();
     initButtons();
     initFortuneInputs();
+    checkSharedFortune();
 });
 
 // ============ Tab Navigation ============
@@ -181,6 +182,7 @@ function initButtons() {
     document.getElementById('btn-shake-fortune')?.addEventListener('click', handleShakeFortune);
     document.getElementById('btn-copy-fortune')?.addEventListener('click', copyFortune);
     document.getElementById('btn-reshake')?.addEventListener('click', handleShakeFortune);
+    document.getElementById('btn-share-fortune')?.addEventListener('click', handleShareFortune);
 }
 
 // ============ Greeting Generation ============
@@ -371,30 +373,59 @@ function copyCouplet() {
 // ============ Fortune Inputs ============
 function initFortuneInputs() {
     const nameInput = document.getElementById('fortune-name');
-    const birthdayInput = document.getElementById('fortune-birthday');
+    const yearInput = document.getElementById('fortune-birth-year');
+    const monthInput = document.getElementById('fortune-birth-month');
+    const dayInput = document.getElementById('fortune-birth-day');
 
     nameInput?.addEventListener('input', (e) => {
         state.fortuneName = e.target.value.trim();
     });
 
-    birthdayInput?.addEventListener('change', (e) => {
-        state.fortuneBirthday = e.target.value;
-        if (e.target.value) {
-            const year = new Date(e.target.value).getFullYear();
+    // 监听年份变化自动推算生肖
+    const onBirthdayChange = () => {
+        const year = parseInt(yearInput?.value);
+        const month = parseInt(monthInput?.value) || 1;
+        const day = parseInt(dayInput?.value) || 1;
+
+        if (year >= 1920 && year <= 2026) {
+            state.fortuneBirthday = `${year}-${month}-${day}`;
             const autoZodiac = getZodiacFromYear(year);
             state.zodiac = autoZodiac;
 
-            // Highlight the correct zodiac chip
             const chips = document.querySelectorAll('#zodiac-chips .chip');
             chips.forEach(chip => {
                 chip.classList.toggle('active', chip.dataset.value === autoZodiac);
             });
 
-            // Show hint
             const hint = document.getElementById('zodiac-auto-hint');
             if (hint) hint.textContent = `（已根据出生年自动选择：${autoZodiac}）`;
         }
-    });
+    };
+
+    yearInput?.addEventListener('input', onBirthdayChange);
+    monthInput?.addEventListener('input', onBirthdayChange);
+    dayInput?.addEventListener('input', onBirthdayChange);
+}
+
+// ============ Shared Fortune (URL Params) ============
+function checkSharedFortune() {
+    const params = new URLSearchParams(window.location.search);
+    const fortuneData = params.get('fortune');
+    if (fortuneData) {
+        try {
+            const decoded = JSON.parse(atob(fortuneData));
+            // Switch to fortune tab
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('nav-fortune')?.classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-fortune')?.classList.add('active');
+            state.currentTab = 'fortune';
+
+            // Display and auto-unlock
+            displayFortune(decoded, true);
+            fireworks?.burst(5);
+        } catch { /* ignore invalid params */ }
+    }
 }
 
 // ============ Fortune Drawing ============
@@ -406,27 +437,64 @@ async function handleShakeFortune() {
     btn.classList.add('shaking');
     btn.disabled = true;
 
-    // Shake animation + delay
     await new Promise(resolve => setTimeout(resolve, 1500));
     btn.classList.remove('shaking');
 
     const fortune = drawFortune(state.zodiac, state.fortuneName, state.fortuneBirthday);
-    displayFortune(fortune);
+    displayFortune(fortune, false); // locked by default
 
     btn.disabled = false;
     state.isGenerating = false;
     fireworks?.burst(5);
 }
 
-function displayFortune(fortune) {
+// ============ Share to Unlock ============
+function handleShareFortune() {
+    // Encode current fortune data into URL
+    const fortuneData = window._currentFortune;
+    if (!fortuneData) return;
+
+    const encoded = btoa(JSON.stringify(fortuneData));
+    const shareUrl = `${window.location.origin}${window.location.pathname}?fortune=${encoded}`;
+
+    // Copy share link
+    navigator.clipboard.writeText(shareUrl).then(() => {
+        showToastMsg('链接已复制，发给朋友吧！🧧');
+        // Unlock fortune details
+        unlockFortune();
+    }).catch(() => {
+        // Fallback: still unlock and show URL
+        const textArea = document.createElement('textarea');
+        textArea.value = shareUrl;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        showToastMsg('链接已复制！🧧');
+        unlockFortune();
+    });
+}
+
+function unlockFortune() {
+    const gate = document.getElementById('fortune-share-gate');
+    const locked = document.getElementById('fortune-locked');
+    if (gate) gate.classList.add('hidden');
+    if (locked) locked.classList.remove('fortune-locked');
+}
+
+function displayFortune(fortune, unlocked = false) {
     const resultArea = document.getElementById('fortune-result');
     const rank = document.getElementById('fortune-rank');
     const number = document.getElementById('fortune-number');
     const poem = document.getElementById('fortune-poem');
     const details = document.getElementById('fortune-details');
     const lucky = document.getElementById('fortune-lucky');
+    const gate = document.getElementById('fortune-share-gate');
+    const locked = document.getElementById('fortune-locked');
 
-    // 如果有姓名，显示在签号旁
+    // Store for share
+    window._currentFortune = fortune;
+
     const namePrefix = fortune.name ? `${fortune.name}的` : '';
     rank.textContent = fortune.rank;
     number.textContent = `${namePrefix}第 ${fortune.number} 签`;
@@ -442,7 +510,6 @@ function displayFortune(fortune) {
     <div class="fortune-detail-item"><span class="fortune-detail-label">💪 健康</span><span class="fortune-detail-value">${zf.health}</span></div>
   `;
 
-    // 个性化部分：五行分析
     if (fortune.ganZhi) {
         detailsHTML += `
         <div class="fortune-section-divider">🔮 五行命理分析</div>
@@ -452,14 +519,12 @@ function displayFortune(fortune) {
         `;
     }
 
-    // 个性化部分：年龄段建议
     if (fortune.ageAdvice) {
         detailsHTML += `
         <div class="fortune-detail-item"><span class="fortune-detail-label">🎯 ${fortune.ageAdvice.ageGroup}运势</span><span class="fortune-detail-value">${fortune.ageAdvice.advice}</span></div>
         `;
     }
 
-    // 个性化部分：姓名分析
     if (fortune.nameAdvice) {
         detailsHTML += `
         <div class="fortune-section-divider">✨ ${fortune.name}的专属解读</div>
@@ -476,6 +541,15 @@ function displayFortune(fortune) {
     <span class="lucky-tag">🧭 贵人方位：${fortune.luckyDirection}</span>
     <span class="lucky-tag">🌸 幸运花：${fortune.luckyFlower}</span>
   `;
+
+    // Share gate: locked or unlocked
+    if (unlocked) {
+        gate?.classList.add('hidden');
+        locked?.classList.remove('fortune-locked');
+    } else {
+        gate?.classList.remove('hidden');
+        locked?.classList.add('fortune-locked');
+    }
 
     resultArea.classList.remove('hidden');
     resultArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });

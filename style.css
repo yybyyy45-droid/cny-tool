@@ -964,6 +964,120 @@ body::before {
     justify-content: center;
 }
 
+/* Birthday inline inputs */
+.birthday-inputs {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+.birthday-input {
+    width: 80px !important;
+    text-align: center;
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.birthday-input::-webkit-outer-spin-button,
+.birthday-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.birthday-sep {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    min-width: 16px;
+}
+
+/* Share-to-unlock gate */
+.fortune-share-gate {
+    position: relative;
+    z-index: 10;
+    padding: var(--space-2xl) var(--space-lg);
+    text-align: center;
+}
+
+.fortune-share-gate.hidden {
+    display: none;
+}
+
+.share-gate-icon {
+    font-size: 3rem;
+    margin-bottom: var(--space-md);
+    animation: lockPulse 2s ease-in-out infinite;
+}
+
+@keyframes lockPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.15);
+    }
+}
+
+.share-gate-title {
+    font-family: var(--font-serif);
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--gold-300);
+    margin-bottom: var(--space-sm);
+}
+
+.share-gate-desc {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: var(--space-lg);
+}
+
+.btn-share {
+    padding: var(--space-md) var(--space-2xl);
+    border: none;
+    border-radius: var(--radius-xl);
+    background: linear-gradient(135deg, var(--gold-600), var(--gold-500), var(--gold-400));
+    background-size: 200% 200%;
+    color: var(--red-900);
+    font-family: var(--font-serif);
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    box-shadow: 0 0 20px rgba(250, 176, 5, 0.3);
+    animation: shimmer 3s ease-in-out infinite;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.btn-share:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 40px rgba(250, 176, 5, 0.5);
+}
+
+.share-gate-hint {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    margin-top: var(--space-md);
+}
+
+/* Fortune locked (blurred) */
+.fortune-locked {
+    filter: blur(8px);
+    user-select: none;
+    pointer-events: none;
+    opacity: 0.5;
+    transition: all 0.5s ease;
+}
+
+.fortune-locked .fortune-details,
+.fortune-locked .fortune-lucky {
+    position: relative;
+}
+
 /* ---------- Footer ---------- */
 .app-footer {
     text-align: center;

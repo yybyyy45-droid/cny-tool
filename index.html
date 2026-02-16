@@ -200,7 +200,17 @@
                 <!-- 出生日期 -->
                 <div class="form-group">
                     <label class="form-label">出生日期 <span class="label-hint">（可选，自动推算生肖和五行）</span></label>
-                    <input type="date" class="form-input" id="fortune-birthday" />
+                    <div class="birthday-inputs">
+                        <input type="number" class="form-input birthday-input" id="fortune-birth-year" placeholder="年份"
+                            min="1920" max="2026" />
+                        <span class="birthday-sep">年</span>
+                        <input type="number" class="form-input birthday-input" id="fortune-birth-month" placeholder="月"
+                            min="1" max="12" />
+                        <span class="birthday-sep">月</span>
+                        <input type="number" class="form-input birthday-input" id="fortune-birth-day" placeholder="日"
+                            min="1" max="31" />
+                        <span class="birthday-sep">日</span>
+                    </div>
                 </div>
 
                 <!-- 生肖选择 -->
@@ -241,8 +251,26 @@
                         <span class="fortune-number" id="fortune-number">第 ?? 签</span>
                     </div>
                     <div class="fortune-poem" id="fortune-poem"></div>
-                    <div class="fortune-details" id="fortune-details"></div>
-                    <div class="fortune-lucky" id="fortune-lucky"></div>
+
+                    <!-- 分享解锁遮罩 -->
+                    <div class="fortune-share-gate" id="fortune-share-gate">
+                        <div class="share-gate-content">
+                            <div class="share-gate-icon">🔒</div>
+                            <p class="share-gate-title">分享解锁详细运势</p>
+                            <p class="share-gate-desc">将运势签分享给朋友，即可查看完整解签</p>
+                            <button class="btn-share" id="btn-share-fortune">
+                                <span>📤</span> 分享给朋友
+                            </button>
+                            <p class="share-gate-hint">分享后自动解锁 ✨</p>
+                        </div>
+                    </div>
+
+                    <!-- 解签内容（默认模糊） -->
+                    <div class="fortune-locked" id="fortune-locked">
+                        <div class="fortune-details" id="fortune-details"></div>
+                        <div class="fortune-lucky" id="fortune-lucky"></div>
+                    </div>
+
                     <div class="fortune-actions">
                         <button class="action-btn" id="btn-copy-fortune">📋 复制运势</button>
                         <button class="action-btn" id="btn-reshake">🔄 再摇一签</button>
