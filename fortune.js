@@ -1,5 +1,5 @@
 // ============================================
-// 运势签数据 — 马年特色
+// 运势签数据 — 马年特色 + 个性化
 // ============================================
 
 export const FORTUNE_RANKS = ['上上签', '上签', '上签', '中上签', '中上签', '中签', '中签', '中签', '中下签', '下签'];
@@ -126,20 +126,116 @@ export const LUCKY_NUMBERS = [3, 6, 8, 9, 16, 18, 28, 36, 68, 88, 99, 168];
 export const LUCKY_DIRECTIONS = ['正东', '正南', '东南', '正北', '西南'];
 export const LUCKY_FLOWERS = ['牡丹', '梅花', '兰花', '桃花', '荷花', '菊花', '百合'];
 
+// ============ 天干地支 & 五行 ============
+const TIAN_GAN = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
+const DI_ZHI = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
+const WUXING_MAP = { '甲': '木', '乙': '木', '丙': '火', '丁': '火', '戊': '土', '己': '土', '庚': '金', '辛': '金', '壬': '水', '癸': '水' };
+const ZODIAC_LIST = ['鼠', '牛', '虎', '兔', '龙', '蛇', '马', '羊', '猴', '鸡', '狗', '猪'];
+
+// 五行相生相克
+const WUXING_SHENG = { '木': '火', '火': '土', '土': '金', '金': '水', '水': '木' };
+const WUXING_KE = { '木': '土', '土': '水', '水': '火', '火': '金', '金': '木' };
+
 /**
- * 根据生肖和日期种子抽签
+ * 根据出生年份获取生肖
  */
-export function drawFortune(zodiac) {
-    // 基于日期的种子 — 同一天同一生肖结果一致
+export function getZodiacFromYear(year) {
+    // 1900年是鼠年
+    const index = (year - 1900) % 12;
+    return ZODIAC_LIST[index >= 0 ? index : index + 12];
+}
+
+/**
+ * 根据出生年份获取天干地支 & 五行
+ */
+export function getGanZhi(year) {
+    const ganIndex = (year - 4) % 10;
+    const zhiIndex = (year - 4) % 12;
+    const gan = TIAN_GAN[ganIndex >= 0 ? ganIndex : ganIndex + 10];
+    const zhi = DI_ZHI[zhiIndex >= 0 ? zhiIndex : zhiIndex + 12];
+    const wuxing = WUXING_MAP[gan];
+    return { gan, zhi, ganZhi: `${gan}${zhi}`, wuxing };
+}
+
+/**
+ * 五行与马年(丙午·火)的互动分析
+ */
+function getWuxingAnalysis(userWuxing) {
+    const maWuxing = '火'; // 2026丙午年属火
+    if (userWuxing === maWuxing) {
+        return { relation: '比和', desc: '与马年五行相同，力量加倍！气场强盛，但需注意火旺过盛，宜静心养性。', boost: 1 };
+    }
+    if (WUXING_SHENG[userWuxing] === maWuxing) {
+        return { relation: '相生（你生马年）', desc: `${userWuxing}生${maWuxing}，你的能量滋养马年运势。付出有回报，但要适度，避免过度消耗自身。`, boost: 0.5 };
+    }
+    if (WUXING_SHENG[maWuxing] === userWuxing) {
+        return { relation: '相生（马年生你）', desc: `${maWuxing}生${userWuxing}，马年为你带来滋养！贵人运旺，事业财运皆有助力，是大有可为的一年。`, boost: 2 };
+    }
+    if (WUXING_KE[userWuxing] === maWuxing) {
+        return { relation: '相克（你克马年）', desc: `${userWuxing}克${maWuxing}，你对马年有掌控力。事业上能主导局面，但需谨防树大招风。`, boost: 0.8 };
+    }
+    if (WUXING_KE[maWuxing] === userWuxing) {
+        return { relation: '相克（马年克你）', desc: `${maWuxing}克${userWuxing}，马年对你有压制。需低调行事，化解冲突，逢凶可化吉。`, boost: -0.5 };
+    }
+    return { relation: '中和', desc: '五行平衡，运势稳定。', boost: 0 };
+}
+
+/**
+ * 根据姓名笔画生成个性化建议
+ */
+function getNameAdvice(name) {
+    if (!name) return null;
+
+    // 简化笔画计算（使用字符编码模拟）
+    let strokeSum = 0;
+    for (let i = 0; i < name.length; i++) {
+        strokeSum += name.charCodeAt(i);
+    }
+    const nameNum = strokeSum % 10;
+
+    const advices = [
+        { trait: '聪明果断', tip: '马年宜主动出击，把握先机。贵人在东方，多向东方发展！' },
+        { trait: '温柔细腻', tip: '马年适合深耕细作，感情事业双丰收。多穿暖色调衣物增运。' },
+        { trait: '刚毅坚韧', tip: '马年你的韧性将发挥大作用，挺过上半年，下半年必有大成！' },
+        { trait: '灵动聪慧', tip: '马年思维活跃，创意无限！适合创新创业，贵人就在朋友圈中。' },
+        { trait: '稳重大气', tip: '马年沉稳是你最大的优势，领导力突显。下半年有重要晋升机会。' },
+        { trait: '乐观豁达', tip: '马年你的正能量感染身边人，人缘旺则百事兴！多帮助他人必有福报。' },
+        { trait: '敏锐洞察', tip: '马年直觉特别准，投资理财多信自己的判断。春季是最佳行动期。' },
+        { trait: '勤勉踏实', tip: '马年一分耕耘一分收获，坚持的人终将胜出！秋冬财运最旺。' },
+        { trait: '创意丰富', tip: '马年是你大放异彩的时候！艺术、创作、表达方面有意外惊喜。' },
+        { trait: '重情重义', tip: '马年贵人运极佳，你的真诚会换来真心回报。家庭和睦是最大财富。' },
+    ];
+
+    return { ...advices[nameNum], nameNum: nameNum + 1 };
+}
+
+/**
+ * 计算年龄段运势加成
+ */
+function getAgeAdvice(birthYear) {
+    const age = 2026 - birthYear;
+    if (age <= 18) return { ageGroup: '少年', advice: '学业运势旺盛，马年是积累知识、培养爱好的绝佳时期。多读书、多运动！' };
+    if (age <= 30) return { ageGroup: '青年', advice: '事业起步期遇马年助力，大胆追梦！适合跳槽、创业或学习新技能。' };
+    if (age <= 45) return { ageGroup: '壮年', advice: '马年事业进入收获期，稳中求进。注意工作与家庭的平衡，身体是革命的本钱。' };
+    if (age <= 60) return { ageGroup: '中年', advice: '马年沉稳致远，经验是最大财富。子女运好，家庭和美。适当投资理财积累养老。' };
+    return { ageGroup: '长者', advice: '马年健康平安最重要，享受天伦之乐。保持乐观心态，广场舞跳起来！' };
+}
+
+/**
+ * 根据生肖、姓名、出生日期综合抽签
+ */
+export function drawFortune(zodiac, name = '', birthday = '') {
+    // 构建个性化种子
     const today = new Date();
     const dateStr = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
-    const seed = hashString(dateStr + zodiac);
+    const seed = hashString(dateStr + zodiac + name + birthday);
 
     const poemIndex = seed % FORTUNE_POEMS.length;
     const fortune = FORTUNE_POEMS[poemIndex];
     const zodiacFortune = ZODIAC_FORTUNES[zodiac] || ZODIAC_FORTUNES['马'];
 
-    return {
+    // 基础结果
+    const result = {
         number: (seed % 108) + 1,
         rank: fortune.rank,
         poem: fortune.poem,
@@ -149,7 +245,43 @@ export function drawFortune(zodiac) {
         luckyNumber: LUCKY_NUMBERS[seed % LUCKY_NUMBERS.length],
         luckyDirection: LUCKY_DIRECTIONS[seed % LUCKY_DIRECTIONS.length],
         luckyFlower: LUCKY_FLOWERS[seed % LUCKY_FLOWERS.length],
+        // 个性化字段
+        personalized: false,
+        name: name || null,
+        birthday: birthday || null,
+        ganZhi: null,
+        wuxing: null,
+        wuxingAnalysis: null,
+        nameAdvice: null,
+        ageAdvice: null,
     };
+
+    // 如果有出生日期，添加个性化内容
+    if (birthday) {
+        const birthYear = new Date(birthday).getFullYear();
+        const ganZhiInfo = getGanZhi(birthYear);
+        const wuxingAnalysis = getWuxingAnalysis(ganZhiInfo.wuxing);
+        const ageAdvice = getAgeAdvice(birthYear);
+
+        result.personalized = true;
+        result.ganZhi = ganZhiInfo;
+        result.wuxing = ganZhiInfo.wuxing;
+        result.wuxingAnalysis = wuxingAnalysis;
+        result.ageAdvice = ageAdvice;
+
+        // 五行加成可能调整签的级别
+        if (wuxingAnalysis.boost >= 2 && fortune.rank === '中签') {
+            result.rank = '中上签';
+        }
+    }
+
+    // 如果有姓名，添加姓名分析
+    if (name) {
+        result.personalized = true;
+        result.nameAdvice = getNameAdvice(name);
+    }
+
+    return result;
 }
 
 /** Simple string hash */

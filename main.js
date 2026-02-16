@@ -1,7 +1,7 @@
 // ============================================
 // AI新年贺 — 主应用逻辑
 // ============================================
-import { drawFortune } from './fortune.js';
+import { drawFortune, getZodiacFromYear } from './fortune.js';
 import { FireworksCanvas } from './particles.js';
 
 // ============ State ============
@@ -12,6 +12,8 @@ const state = {
     coupletTheme: '事业',
     coupletStyle: '传统',
     zodiac: '马',
+    fortuneName: '',
+    fortuneBirthday: '',
     isGenerating: false,
 };
 
@@ -117,6 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initTabNavigation();
     initChipGroups();
     initButtons();
+    initFortuneInputs();
 });
 
 // ============ Tab Navigation ============
@@ -365,6 +368,35 @@ function copyCouplet() {
     navigator.clipboard.writeText(text).then(() => showToastMsg('春联已复制 🏮'));
 }
 
+// ============ Fortune Inputs ============
+function initFortuneInputs() {
+    const nameInput = document.getElementById('fortune-name');
+    const birthdayInput = document.getElementById('fortune-birthday');
+
+    nameInput?.addEventListener('input', (e) => {
+        state.fortuneName = e.target.value.trim();
+    });
+
+    birthdayInput?.addEventListener('change', (e) => {
+        state.fortuneBirthday = e.target.value;
+        if (e.target.value) {
+            const year = new Date(e.target.value).getFullYear();
+            const autoZodiac = getZodiacFromYear(year);
+            state.zodiac = autoZodiac;
+
+            // Highlight the correct zodiac chip
+            const chips = document.querySelectorAll('#zodiac-chips .chip');
+            chips.forEach(chip => {
+                chip.classList.toggle('active', chip.dataset.value === autoZodiac);
+            });
+
+            // Show hint
+            const hint = document.getElementById('zodiac-auto-hint');
+            if (hint) hint.textContent = `（已根据出生年自动选择：${autoZodiac}）`;
+        }
+    });
+}
+
 // ============ Fortune Drawing ============
 async function handleShakeFortune() {
     if (state.isGenerating) return;
@@ -378,7 +410,7 @@ async function handleShakeFortune() {
     await new Promise(resolve => setTimeout(resolve, 1500));
     btn.classList.remove('shaking');
 
-    const fortune = drawFortune(state.zodiac);
+    const fortune = drawFortune(state.zodiac, state.fortuneName, state.fortuneBirthday);
     displayFortune(fortune);
 
     btn.disabled = false;
@@ -394,12 +426,14 @@ function displayFortune(fortune) {
     const details = document.getElementById('fortune-details');
     const lucky = document.getElementById('fortune-lucky');
 
+    // 如果有姓名，显示在签号旁
+    const namePrefix = fortune.name ? `${fortune.name}的` : '';
     rank.textContent = fortune.rank;
-    number.textContent = `第 ${fortune.number} 签`;
+    number.textContent = `${namePrefix}第 ${fortune.number} 签`;
     poem.textContent = fortune.poem;
 
     const zf = fortune.zodiacFortune;
-    details.innerHTML = `
+    let detailsHTML = `
     <div class="fortune-detail-item"><span class="fortune-detail-label">🐴 生肖</span><span class="fortune-detail-value">${fortune.zodiac} · 马年运势 ${zf.overall}</span></div>
     <div class="fortune-detail-item"><span class="fortune-detail-label">📝 总运</span><span class="fortune-detail-value">${zf.summary}</span></div>
     <div class="fortune-detail-item"><span class="fortune-detail-label">💼 事业</span><span class="fortune-detail-value">${zf.career}</span></div>
@@ -407,6 +441,34 @@ function displayFortune(fortune) {
     <div class="fortune-detail-item"><span class="fortune-detail-label">💕 感情</span><span class="fortune-detail-value">${zf.love}</span></div>
     <div class="fortune-detail-item"><span class="fortune-detail-label">💪 健康</span><span class="fortune-detail-value">${zf.health}</span></div>
   `;
+
+    // 个性化部分：五行分析
+    if (fortune.ganZhi) {
+        detailsHTML += `
+        <div class="fortune-section-divider">🔮 五行命理分析</div>
+        <div class="fortune-detail-item"><span class="fortune-detail-label">📅 命格</span><span class="fortune-detail-value">${fortune.ganZhi.ganZhi}年 · 五行属${fortune.wuxing}</span></div>
+        <div class="fortune-detail-item"><span class="fortune-detail-label">⚡ 马年互动</span><span class="fortune-detail-value">${fortune.wuxingAnalysis.relation}</span></div>
+        <div class="fortune-detail-item"><span class="fortune-detail-label">📖 解读</span><span class="fortune-detail-value">${fortune.wuxingAnalysis.desc}</span></div>
+        `;
+    }
+
+    // 个性化部分：年龄段建议
+    if (fortune.ageAdvice) {
+        detailsHTML += `
+        <div class="fortune-detail-item"><span class="fortune-detail-label">🎯 ${fortune.ageAdvice.ageGroup}运势</span><span class="fortune-detail-value">${fortune.ageAdvice.advice}</span></div>
+        `;
+    }
+
+    // 个性化部分：姓名分析
+    if (fortune.nameAdvice) {
+        detailsHTML += `
+        <div class="fortune-section-divider">✨ ${fortune.name}的专属解读</div>
+        <div class="fortune-detail-item"><span class="fortune-detail-label">🏷️ 命数特质</span><span class="fortune-detail-value">${fortune.nameAdvice.trait}（姓名灵数${fortune.nameAdvice.nameNum}）</span></div>
+        <div class="fortune-detail-item"><span class="fortune-detail-label">💡 开运锦囊</span><span class="fortune-detail-value">${fortune.nameAdvice.tip}</span></div>
+        `;
+    }
+
+    details.innerHTML = detailsHTML;
 
     lucky.innerHTML = `
     <span class="lucky-tag">🎨 幸运色：${fortune.luckyColor}</span>

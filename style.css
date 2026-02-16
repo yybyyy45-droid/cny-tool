@@ -929,6 +929,18 @@ body::before {
     flex: 1;
 }
 
+.fortune-section-divider {
+    font-family: var(--font-serif);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--gold-300);
+    margin-top: var(--space-lg);
+    padding: var(--space-sm) 0;
+    border-top: 1px dashed rgba(250, 176, 5, 0.3);
+    text-align: center;
+    letter-spacing: 0.1em;
+}
+
 .fortune-lucky {
     display: flex;
     flex-wrap: wrap;

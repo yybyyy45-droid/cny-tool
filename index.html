@@ -189,11 +189,23 @@
         <section class="tab-content" id="tab-fortune">
             <div class="section-card fortune-section">
                 <h2 class="section-title"><span>🐴</span> 马年运势签</h2>
-                <p class="section-desc">诚心摇签，马年好运降临</p>
+                <p class="section-desc">输入姓名和生日，获取专属马年运势</p>
+
+                <!-- 姓名 -->
+                <div class="form-group">
+                    <label class="form-label">你的姓名 <span class="label-hint">（可选，生成个性化解读）</span></label>
+                    <input type="text" class="form-input" id="fortune-name" placeholder="例如：张三" maxlength="10" />
+                </div>
+
+                <!-- 出生日期 -->
+                <div class="form-group">
+                    <label class="form-label">出生日期 <span class="label-hint">（可选，自动推算生肖和五行）</span></label>
+                    <input type="date" class="form-input" id="fortune-birthday" />
+                </div>
 
                 <!-- 生肖选择 -->
                 <div class="form-group">
-                    <label class="form-label">选择你的生肖</label>
+                    <label class="form-label">你的生肖 <span class="label-hint" id="zodiac-auto-hint"></span></label>
                     <div class="chip-group zodiac-chips" id="zodiac-chips">
                         <button class="chip" data-value="鼠">🐭 鼠</button>
                         <button class="chip" data-value="牛">🐮 牛</button>
