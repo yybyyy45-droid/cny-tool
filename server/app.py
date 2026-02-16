@@ -17,9 +17,9 @@ from openai import OpenAI
 load_dotenv()
 
 # ============ Config ============
-API_KEY = os.getenv("DEEPSEEK_API_KEY", "")
-BASE_URL = os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
-MODEL_NAME = os.getenv("MODEL_NAME", "deepseek-chat")
+API_KEY = os.getenv("SILICONFLOW_API_KEY", "")
+BASE_URL = os.getenv("API_BASE_URL", "https://api.siliconflow.cn/v1")
+MODEL_NAME = os.getenv("MODEL_NAME", "Pro/deepseek-ai/DeepSeek-V3.2")
 
 client = OpenAI(api_key=API_KEY, base_url=BASE_URL) if API_KEY and API_KEY != "your_api_key_here" else None
 
